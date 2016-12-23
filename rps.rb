@@ -105,5 +105,3 @@ class RPSGame
 end
 
 RPSGame.new.play
-
-# start at play_again? method
