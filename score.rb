@@ -1,3 +1,9 @@
+require 'pry'
+
+class GameOptions
+  WINNING_SCORE = 2
+end
+
 class Move
   VALUES = ['rock', 'paper', 'scissors'].freeze
 
@@ -35,11 +41,16 @@ class Move
 end
 
 class Player
-  attr_accessor :move, :name, :score
+  attr_accessor :move, :name, :score, :history
 
   def initialize
     set_name
     @score = 0
+    @history = []
+  end
+
+  def add_point
+    self.score += 1
   end
 end
 
@@ -64,6 +75,7 @@ class Human < Player
       puts "Sorry, invalid choice."
     end
     self.move = Move.new(choice)
+    self.history << self.move.to_s
   end
 end
 
@@ -74,6 +86,7 @@ class Computer < Player
 
   def choose
     self.move = Move.new(Move::VALUES.sample)
+    self.history << self.move.to_s
   end
 end
 
@@ -87,7 +100,7 @@ class RPSGame
   end
 
   def display_welcome_message
-    puts "Welcome to Rock, Paper, Scissors! First to 2 wins."
+    puts "Welcome to Rock, Paper, Scissors! First to #{GameOptions::WINNING_SCORE} wins."
   end
 
   def display_goodbye_message
@@ -102,21 +115,26 @@ class RPSGame
   def display_winner
     if human.move > computer.move
       puts "#{human.name} won!"
-      human.score += 1
+      human.add_point
     elsif human.move < computer.move
       puts "#{computer.name} won!"
-      computer.score += 1
+      computer.add_point
     else
       puts "It's a tie!"
     end
   end
 
   def display_score
-    puts "#{human.name}: #{human.score} ---- #{computer.name}: #{computer.score}"
+    puts "#{human.name}: #{human.score} -- #{computer.name}: #{computer.score}"
+  end
+
+  def display_history
+    puts "#{human.name}'s history: #{human.history.join(", ")}."
+    puts "#{computer.name}'s history: #{computer.history.join(", ")}."
   end
 
   def winner?
-    human.score == 2 || computer.score == 2
+    human.score == GameOptions::WINNING_SCORE || computer.score == GameOptions::WINNING_SCORE
   end
 
   def play_again?
@@ -140,9 +158,11 @@ class RPSGame
       display_moves
       display_winner
       display_score
+      # binding.pry
       break if winner?
       # break unless play_again?
     end
+    display_history
     display_goodbye_message
   end
 end
